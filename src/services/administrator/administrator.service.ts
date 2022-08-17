@@ -1,6 +1,6 @@
 import { Injectable, Options } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Administrator } from 'entities/administrator.entity';
+import { Administrator } from 'entities/Administrator';
 import { Repository } from 'typeorm';
 
 @Injectable()
