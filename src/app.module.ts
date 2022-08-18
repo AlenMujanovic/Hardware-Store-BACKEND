@@ -15,33 +15,37 @@ import { Order } from 'entities/Order';
 import { Photo } from 'entities/Photo';
 import { User } from 'entities/User';
 import { AdministratorController } from './controllers/api/administrator.controller';
+import { CategoryController } from './controllers/api/category.controller';
+import { CategoryService } from './services/category/category.service';
+import { ArticleService } from './services/article/article.service';
+import { ArticleController } from './controllers/api/article.controller';
 
 @Module({
-  imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: DatabaseConfiguration.hostname,
-      port: 3306,
-      username: DatabaseConfiguration.username,
-      password: DatabaseConfiguration.password,
-      database: DatabaseConfiguration.database,
-      entities: [
-        Administrator,
-        Article,
-        ArticleFeature,
-        ArticlePrice,
-        Cart,
-        CartArticle,
-        Category,
-        Feature,
-        Order,
-        Photo,
-        User,
-      ],
-    }),
-    TypeOrmModule.forFeature([Administrator]),
-  ],
-  controllers: [AppController, AdministratorController],
-  providers: [AdministratorService],
+    imports: [
+        TypeOrmModule.forRoot({
+            type: 'mysql',
+            host: DatabaseConfiguration.hostname,
+            port: 3306,
+            username: DatabaseConfiguration.username,
+            password: DatabaseConfiguration.password,
+            database: DatabaseConfiguration.database,
+            entities: [
+                Administrator,
+                Article,
+                ArticleFeature,
+                ArticlePrice,
+                Cart,
+                CartArticle,
+                Category,
+                Feature,
+                Order,
+                Photo,
+                User,
+            ],
+        }),
+        TypeOrmModule.forFeature([Administrator, Category, Article]),
+    ],
+    controllers: [AppController, AdministratorController, CategoryController, ArticleController],
+    providers: [AdministratorService, CategoryService, ArticleService],
 })
 export class AppModule {}

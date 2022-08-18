@@ -1,12 +1,15 @@
 import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
+    Column,
+    Entity,
+    Index,
+    JoinColumn,
+    JoinTable,
+    ManyToMany,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Article } from './Article';
 import { ArticleFeature } from './ArticleFeature';
 import { Category } from './Category';
 
@@ -14,22 +17,30 @@ import { Category } from './Category';
 @Index('fk_feature_category_id', ['categoryId'], {})
 @Entity('feature')
 export class Feature {
-  @PrimaryGeneratedColumn({ type: 'int', name: 'feature_id', unsigned: true })
-  featureId: number;
+    @PrimaryGeneratedColumn({ type: 'int', name: 'feature_id', unsigned: true })
+    featureId: number;
 
-  @Column('varchar', { name: 'name', length: 32 })
-  name: string;
+    @Column('varchar', { name: 'name', length: 32 })
+    name: string;
 
-  @Column('int', { name: 'category_id', unsigned: true })
-  categoryId: number;
+    @Column('int', { name: 'category_id', unsigned: true })
+    categoryId: number;
 
-  @OneToMany(() => ArticleFeature, (articleFeature) => articleFeature.feature)
-  articleFeatures: ArticleFeature[];
+    @OneToMany(() => ArticleFeature, (articleFeature) => articleFeature.feature)
+    articleFeatures: ArticleFeature[];
 
-  @ManyToOne(() => Category, (category) => category.features, {
-    onDelete: 'CASCADE',
-    onUpdate: 'RESTRICT',
-  })
-  @JoinColumn([{ name: 'category_id', referencedColumnName: 'categoryId' }])
-  category: Category;
+    @ManyToMany((type) => Article, (article) => article.features)
+    @JoinTable({
+        name: 'article_feature',
+        joinColumn: { name: 'feature_id', referencedColumnName: 'featureId' },
+        inverseJoinColumn: { name: 'article_id', referencedColumnName: 'articleId' },
+    })
+    articles: Article[];
+
+    @ManyToOne(() => Category, (category) => category.features, {
+        onDelete: 'CASCADE',
+        onUpdate: 'RESTRICT',
+    })
+    @JoinColumn([{ name: 'category_id', referencedColumnName: 'categoryId' }])
+    category: Category;
 }

@@ -7,33 +7,33 @@ import { AdministratorService } from 'src/services/administrator/administrator.s
 
 @Controller('api/administrator')
 export class AdministratorController {
-  constructor(private administratorService: AdministratorService) {}
+    constructor(private administratorService: AdministratorService) {}
 
-  @Get()
-  getAll(): Promise<Administrator[]> {
-    return this.administratorService.getAll();
-  }
+    @Get()
+    getAll(): Promise<Administrator[]> {
+        return this.administratorService.getAll();
+    }
 
-  @Get(':id')
-  getById(@Param('id') administratorId: number): Promise<Administrator | ApiResponse> {
-    return new Promise(async (resolve) => {
-      let admin = await this.administratorService.getById(administratorId);
+    @Get(':id')
+    getById(@Param('id') administratorId: number): Promise<Administrator | ApiResponse> {
+        return new Promise(async (resolve) => {
+            let admin = await this.administratorService.getById(administratorId);
 
-      if (admin === null) {
-        resolve(new ApiResponse('error', -1002));
-      }
+            if (admin === null) {
+                resolve(new ApiResponse('error', -1002));
+            }
 
-      resolve(admin);
-    });
-  }
+            resolve(admin);
+        });
+    }
 
-  @Put()
-  add(@Body() data: AddAdministratorDto): Promise<Administrator | ApiResponse> {
-    return this.administratorService.add(data);
-  }
+    @Put()
+    add(@Body() data: AddAdministratorDto): Promise<Administrator | ApiResponse> {
+        return this.administratorService.add(data);
+    }
 
-  @Post(':id')
-  edit(@Param('id') id: number, @Body() data: EditAdministratorDto): Promise<Administrator | ApiResponse> {
-    return this.administratorService.editById(id, data);
-  }
+    @Post(':id')
+    edit(@Param('id') id: number, @Body() data: EditAdministratorDto): Promise<Administrator | ApiResponse> {
+        return this.administratorService.editById(id, data);
+    }
 }
