@@ -43,7 +43,7 @@ import { ArticleController } from './controllers/api/article.controller';
                 User,
             ],
         }),
-        TypeOrmModule.forFeature([Administrator, Category, Article]),
+        TypeOrmModule.forFeature([Administrator, Category, Article, ArticlePrice, ArticleFeature]),
     ],
     controllers: [AppController, AdministratorController, CategoryController, ArticleController],
     providers: [AdministratorService, CategoryService, ArticleService],
