@@ -79,7 +79,7 @@ import { UserService } from './services/user/user.service';
         FeatureService,
         UserService,
     ],
-    exports: [AdministratorService],
+    exports: [AdministratorService, UserService],
 })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
