@@ -59,13 +59,19 @@ import { AllowToRoles } from 'src/misc/allow.to.roles.descriptor';
         },
     },
     routes: {
-        exclude: ['updateOneBase', 'replaceOneBase', 'deleteOneBase'],
+        only: ['getOneBase', 'getManyBase'],
+        getManyBase: {
+            decorators: [UseGuards(RoleCheckerGuard), AllowToRoles('administrator', 'user')],
+        },
+        getOneBase: {
+            decorators: [UseGuards(RoleCheckerGuard), AllowToRoles('administrator', 'user')],
+        },
     },
 })
 export class ArticleController {
     constructor(public service: ArticleService, public photoService: PhotoService) {}
 
-    @Post('createFull')
+    @Post()
     @UseGuards(RoleCheckerGuard)
     @AllowToRoles('administrator')
     createFullArticle(@Body() data: AddArticleDto) {
