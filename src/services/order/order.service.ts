@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cart } from 'src/entities/Cart';
-import { Repository } from 'typeorm';
+import { createQueryBuilder, Repository } from 'typeorm';
 import { Order } from 'src/entities/Order';
 import { ApiResponse } from 'src/misc/api.response.class';
 
@@ -16,7 +16,9 @@ export class OrderService {
     ) {}
 
     async add(cartId: number): Promise<Order | ApiResponse> {
-        const order = await this.order.findOne({ where: { cartId: cartId } });
+        const order = await this.order.findOne({
+            where: { cartId: cartId },
+        });
 
         if (order) {
             return new ApiResponse('error', -7001, 'An order for this cart has already been made.');
@@ -39,17 +41,10 @@ export class OrderService {
         newOrder.cartId = cartId;
         const savedOrder = await this.order.save(newOrder);
 
-        return await this.order.findOne({
-            where: { orderId: savedOrder.orderId },
-            relations: [
-                'cart',
-                'cart.user',
-                'cart.cartArticles',
-                'cart.cartArticles.article',
-                'cart.cartArticles.article.category',
-                'cart.cartArticles.article.articlePrices',
-            ],
-        });
+        cart.createdAt = new Date();
+        await this.cart.save(cart);
+
+        return await this.getById(savedOrder.orderId);
     }
 
     async getById(orderId: number) {
@@ -65,6 +60,22 @@ export class OrderService {
             ],
         });
     }
+
+    // async getAllByUserId(userId: number) {
+    //     return await this.order.find({
+    //         where: {
+    //             userId: userId,
+    //         },
+    //         relations: [
+    //             'cart',
+    //             'cart.user',
+    //             'cart.cartArticles',
+    //             'cart.cartArticles.article',
+    //             'cart.cartArticles.article.category',
+    //             'cart.cartArticles.article.articlePrices',
+    //         ],
+    //     });
+    // }
 
     async changeStatus(orderId: number, newStatus: 'rejected' | 'accepted' | 'shipped' | 'pending') {
         const order = await this.getById(orderId);

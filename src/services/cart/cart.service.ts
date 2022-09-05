@@ -63,9 +63,9 @@ export class CartService {
             record = new CartArticle();
             record.cartId = cartId;
             record.articleId = articleId;
-            record.quantitiy = quantity;
+            record.quantity = quantity;
         } else {
-            record.quantitiy += quantity;
+            record.quantity += quantity;
         }
 
         await this.cartArticle.save(record);
@@ -78,7 +78,13 @@ export class CartService {
             where: {
                 cartId,
             },
-            relations: ['cartArticles', 'user', 'cartArticles.article', 'cartArticles.article.category'],
+            relations: [
+                'cartArticles',
+                'user',
+                'cartArticles.article',
+                'cartArticles.article.category',
+                'cartArticles.article.articlePrices',
+            ],
         });
     }
 
@@ -91,9 +97,9 @@ export class CartService {
         });
 
         if (record) {
-            record.quantitiy = newQuantity;
+            record.quantity = newQuantity;
 
-            if (record.quantitiy === 0) {
+            if (record.quantity === 0) {
                 await this.cartArticle.delete(record.cartArticleId);
             } else {
                 await this.cartArticle.save(record);

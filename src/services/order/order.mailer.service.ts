@@ -22,7 +22,7 @@ export class OrderMailer {
         let suma = order.cart.cartArticles.reduce((sum, current: CartArticle) => {
             return (
                 sum +
-                current.quantitiy *
+                current.quantity *
                     current.article.articlePrices[current.article.articlePrices.length - 1].price
             );
         }, 0);

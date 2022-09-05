@@ -1,6 +1,7 @@
 import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Cart } from './Cart';
 import * as Validator from 'class-validator';
+import { Order } from './Order';
 
 @Index('uq_user_email', ['email'], { unique: true })
 @Index('uq_user_phone_number', ['phoneNumber'], { unique: true })

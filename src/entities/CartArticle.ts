@@ -30,7 +30,7 @@ export class CartArticle {
         allowNaN: false,
         maxDecimalPlaces: 0,
     })
-    quantitiy: number;
+    quantity: number;
 
     @ManyToOne(() => Article, (article) => article.cartArticles, {
         onDelete: 'CASCADE',

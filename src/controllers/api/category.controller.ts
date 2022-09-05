@@ -22,11 +22,11 @@ import { CategoryService } from 'src/services/category/category.service';
             categories: {
                 eager: true,
             },
-            parentCategory: {
-                eager: false,
-            },
             features: {
                 eager: true,
+            },
+            parentCategory: {
+                eager: false,
             },
             articles: {
                 eager: false,
@@ -34,7 +34,7 @@ import { CategoryService } from 'src/services/category/category.service';
         },
     },
     routes: {
-        only: ['createOneBase', 'createManyBase', 'getManyBase', 'getManyBase', 'updateOneBase'],
+        only: ['createOneBase', 'createManyBase', 'updateOneBase', 'getManyBase', 'getOneBase'],
         createOneBase: {
             decorators: [UseGuards(RoleCheckerGuard), AllowToRoles('administrator')],
         },

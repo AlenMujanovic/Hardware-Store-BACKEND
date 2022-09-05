@@ -41,7 +41,7 @@ export class ArticleService extends TypeOrmCrudService<Article> {
         await this.articlePrice.save(newArticlePrice);
 
         for (let feature of data.features) {
-            let newArticleFeature = new ArticleFeature();
+            let newArticleFeature: ArticleFeature = new ArticleFeature();
             newArticleFeature.articleId = savedArticle.articleId;
             newArticleFeature.featureId = feature.featureId;
             newArticleFeature.value = feature.value;
@@ -81,15 +81,13 @@ export class ArticleService extends TypeOrmCrudService<Article> {
         existingArticle.isPromoted = data.isPromoted;
 
         const savedArticle = await this.article.save(existingArticle);
-
         if (!savedArticle) {
-            return new ApiResponse('error', -5002, 'Could not save new article data');
+            return new ApiResponse('error', -5002, 'Could not save new article data.');
         }
 
-        const newPriceString: string = Number(data.price).toFixed(2);
-
+        const newPriceString: string = Number(data.price).toFixed(2); // 50.1 -> "50.10"
         const lastPrice = existingArticle.articlePrices[existingArticle.articlePrices.length - 1].price;
-        const lastPriceString: string = Number(lastPrice).toFixed(2);
+        const lastPriceString: string = Number(lastPrice).toFixed(2); // 50 -> "50.00"
 
         if (newPriceString !== lastPriceString) {
             const newArticlePrice = new ArticlePrice();
@@ -98,7 +96,7 @@ export class ArticleService extends TypeOrmCrudService<Article> {
 
             const savedArticlePrice = await this.articlePrice.save(newArticlePrice);
             if (!savedArticlePrice) {
-                return new ApiResponse('error', -5003, 'Could not save the new article price');
+                return new ApiResponse('error', -5003, 'Could not save the new article price.');
             }
         }
 
@@ -106,7 +104,7 @@ export class ArticleService extends TypeOrmCrudService<Article> {
             await this.articleFeature.remove(existingArticle.articleFeatures);
 
             for (let feature of data.features) {
-                let newArticleFeature = new ArticleFeature();
+                let newArticleFeature: ArticleFeature = new ArticleFeature();
                 newArticleFeature.articleId = articleId;
                 newArticleFeature.featureId = feature.featureId;
                 newArticleFeature.value = feature.value;
@@ -126,21 +124,28 @@ export class ArticleService extends TypeOrmCrudService<Article> {
         });
     }
 
-    async search(data: ArticleSearchDto): Promise<Article[]> {
+    async search(data: ArticleSearchDto): Promise<Article[] | ApiResponse> {
         const builder = await this.article.createQueryBuilder('article');
 
         builder.innerJoinAndSelect(
             'article.articlePrices',
             'ap',
-            'ap.createdAt = (SELECT ap.created_at FROM article_price AS ap WHERE ap.article_id = article.article_id ORDER BY ap.createdAt DESC LIMIT 1)', //Nije najbolja prakse
+            'ap.createdAt = (SELECT MAX(ap.created_at) FROM article_price AS ap WHERE ap.article_id = article.article_id)',
         );
-        builder.leftJoinAndSelect('article.articleFeatures', 'af');
 
-        builder.where('article.categoryId = :categoryId', { categoryId: data.categoryId });
+        builder.leftJoinAndSelect('article.articleFeatures', 'af');
+        builder.leftJoinAndSelect('article.features', 'features');
+        builder.leftJoinAndSelect('article.photos', 'photos');
+
+        builder.where('article.categoryId = :catId', { catId: data.categoryId });
 
         if (data.keywords && data.keywords.length > 0) {
             builder.andWhere(
-                `(article.name LIKE :kw OR article.excerpt LIKE :kw OR article.description LIKE :kw)`,
+                `(
+                                article.name LIKE :kw OR
+                                article.excerpt LIKE :kw OR
+                                article.description LIKE :kw
+                )`,
                 { kw: '%' + data.keywords.trim() + '%' },
             );
         }
@@ -148,8 +153,9 @@ export class ArticleService extends TypeOrmCrudService<Article> {
         if (data.priceMin && typeof data.priceMin === 'number') {
             builder.andWhere('ap.price >= :min', { min: data.priceMin });
         }
+
         if (data.priceMax && typeof data.priceMax === 'number') {
-            builder.andWhere('ap.price >= :max', { max: data.priceMax });
+            builder.andWhere('ap.price <= :max', { max: data.priceMax });
         }
 
         if (data.features && data.features.length > 0) {
@@ -170,6 +176,7 @@ export class ArticleService extends TypeOrmCrudService<Article> {
             if (orderBy === 'price') {
                 orderBy = 'ap.price';
             }
+
             if (orderBy === 'name') {
                 orderBy = 'article.name';
             }
@@ -195,17 +202,12 @@ export class ArticleService extends TypeOrmCrudService<Article> {
         builder.skip(page * perPage);
         builder.take(perPage);
 
-        let articleIds = await (await builder.getMany()).map((article) => article.articleId);
+        let articles = await builder.getMany();
 
-        return await this.article.find({
-            where: { articleId: In(articleIds) },
-            relations: {
-                category: true,
-                articleFeatures: true,
-                features: true,
-                articlePrices: true,
-                photos: true,
-            },
-        });
+        if (articles.length === 0) {
+            return new ApiResponse('ok', 0, 'No articles found for these search paramaters');
+        }
+
+        return articles;
     }
 }

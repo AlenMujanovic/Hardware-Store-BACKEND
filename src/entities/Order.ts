@@ -1,6 +1,7 @@
 import { Column, Entity, Index, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Cart } from './Cart';
 import * as Validator from 'class-validator';
+import { User } from './User';
 
 @Index('uq_order_cart_id', ['cartId'], { unique: true })
 @Entity('order')
